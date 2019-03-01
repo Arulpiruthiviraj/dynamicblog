@@ -9,6 +9,7 @@
 				<th>  Deleting</th>
 			</thead>
 			<tbody>
+			@if($categories->count()>0)
 				@foreach($categories as $category)
 				<tr>
 				<td>{{$category->name}}</td>
@@ -17,6 +18,13 @@
 				<td><a href="{{route('category.delete',['id'=>$category->id])}}" class="btn btn-sm btn-danger">DELETE</a></td>	
 				</tr>
 				@endforeach
+			@else
+				<tr>
+					<td colspan="5" class="text-center">
+						<p>No Category</p>
+					</td>
+				</tr>
+			@endif
 			</tbody>
        </table>
   </div>

@@ -13,14 +13,23 @@
 			<input type="text" name="title" class="form-control">	
 		</div>
 		 <div class="form-group">
-    <label for="Select category">Category</label>
-    <select class="form-control" id="category_id" name="category_id">
-    	 <option selected>Choose a category </option>
-    	@foreach($categories as $category)
-      <option value="{{$category->id}}">{{$category->name }}</option>
-      @endforeach
-    </select>
-  </div>
+			<label for="Select category">Category</label>
+			<select class="form-control" id="category_id" name="category_id">
+				 <option selected>Choose a category </option>
+				@foreach($categories as $category)
+			  <option value="{{$category->id}}">{{$category->name }}</option>
+			  @endforeach
+			</select>
+         </div>
+		<div class="form-group">
+			<label  for="tags">Select tags	</label>
+					@foreach($tags as $tag)
+				<div class="checkbox">
+					<label><input class="form-check-input"  name="tags[]"  type="checkbox" value="{{$tag->id}}" id="tag_id">{{$tag->tag}} </label>
+				</div>
+					@endforeach
+	    </div>
+
 		<div class="form-group">
 			<label for="featured">Image</label>
 			<input type="file" name="featured" class="form-control">	

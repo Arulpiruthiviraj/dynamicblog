@@ -2,6 +2,7 @@
 
 namespace App;
 use App\Post;
+use App\Tag;
 use App\Category;
 
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,11 @@ class Post extends Model
 	Protected $dates=['deleted_at'];
     Public function category()
     {
-    	return $this->belongsTo('Category');
+    	return $this->belongsTo('App\Category');
+    }
+    Public function tags()
+    {
+        return $this->belongsToMany('App\Tag');
     }
     Public function getFeatured($featured)
     {

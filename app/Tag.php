@@ -6,10 +6,10 @@ use App\Category;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Tag extends Model
 {
     Public function posts()
     {
-    	return $this->hasMany('App\Post');
+        return $this->belongsToMany('App\Post');
     }
 }

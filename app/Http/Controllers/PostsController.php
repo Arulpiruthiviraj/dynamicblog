@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Post;
 use App\Category;
+use Illuminate\Support\Facades\App;
 use Session;
+use App\Tag;
 
 class PostsController extends Controller
 {
@@ -18,6 +20,7 @@ class PostsController extends Controller
     {
         $Posts=Post::all();
        return view('admin.posts.index')->with('Posts',$Posts);
+
     }
 
     /**
@@ -33,7 +36,8 @@ class PostsController extends Controller
           Session::flash('info','You must create a category before creating post :)');
            return redirect()->back(); 
         }
-        return view('admin.posts.create')->with('categories',$categories);
+        return view('admin.posts.create')->with('categories',$categories)
+                                              ->with('tags',Tag::all());
     }
 
     /**
@@ -44,6 +48,7 @@ class PostsController extends Controller
      */
     public function store(Request $request)
     {
+//        dd($request->all());
         $this->validate($request,[
             'title'=>'required',
             'featured'=>'required|image',
@@ -65,7 +70,7 @@ class PostsController extends Controller
 
         ]);
        Session::flash('success','Posted successfully');
-       
+       $post->tags()->attach($request->tags);
        
         $post->save();
          return redirect()->back();
@@ -91,7 +96,10 @@ class PostsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $Posts=Post::find($id);
+        $categories=Category::all();
+        return view('admin.posts.edit')->with('categories',$categories)->with('Posts',$Posts)
+                                             ->with('tags',Tag::all());;
     }
 
     /**
@@ -103,8 +111,28 @@ class PostsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $Posts=Post::find($id);
+        $this->validate($request,[
+            'title'=>'required',
+            'content'=>'required',
+            'category_id'=>'required',
+        ]);
+        if($request->hasFile('featured'))
+        {
+            $featured=$request->featured;
+            $featured_new_name=time().$featured->getClientOriginalName();
+            $featured->move('uploads/posts',$featured_new_name);
+        }
+        $Posts->title=$request->title;
+        $Posts->content=$request->content;
+        $Posts->category_id=$request->category_id;
+        $Posts->save();
+        $Posts->tags()->sync($request->tags);
+        Session::flash('success','Updated Post Successfully');
+        return redirect()->route('post.index');
+
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -118,5 +146,24 @@ class PostsController extends Controller
        $Post->delete();
        Session::flash('success','Your Post has been Trashed');
        return redirect()->back();
+    }
+    public function trash()
+    {
+        $Posts= Post::onlyTrashed()->get();
+        return view('admin.posts.trash')->with('Posts',$Posts);
+    }
+    public function kill($id)
+    {
+        $Posts= Post::withTrashed()->where('id',$id)->first();
+        $Posts->forceDelete();
+        Session::flash('success','Deleted Post Permanently');
+        return redirect()->back();
+    }
+    public function restore($id)
+    {
+        $Posts= Post::withTrashed()->where('id',$id)->first();
+        $Posts->restore();
+        Session::flash('success','Post Restored Successfully');
+        return redirect()->back();
     }
 }
